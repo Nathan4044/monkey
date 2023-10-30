@@ -1,9 +1,10 @@
 package compiler
 
 import (
-    "monkey/ast"
-    "monkey/code"
-    "monkey/object"
+	"fmt"
+	"monkey/ast"
+	"monkey/code"
+	"monkey/object"
 )
 
 type Compiler struct {
@@ -45,6 +46,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 
         if err != nil {
             return err
+        }
+
+        switch node.Operator {
+        case "+":
+            c.emit(code.OpAdd)
+        default:
+            return fmt.Errorf("unknown operator %s", node.Operator)
         }
     case *ast.IntegerLiteral:
         integer := &object.Integer{
