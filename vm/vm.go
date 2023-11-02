@@ -8,9 +8,11 @@ import (
 )
 
 const StackSize = 2048
+const GlobalSize = 65536
 
 var True = &object.Boolean{Value: true}
 var False = &object.Boolean{Value: false}
+var Null = &object.Null{}
 
 type VM struct {
     constants []object.Object
@@ -18,6 +20,8 @@ type VM struct {
 
     stack []object.Object
     sp int // always points to space after current top of stack
+
+    globals []object.Object
 }
 
 func New(bytecode *compiler.Bytecode) *VM {
@@ -26,7 +30,15 @@ func New(bytecode *compiler.Bytecode) *VM {
         constants: bytecode.Constants,
         stack: make([]object.Object, StackSize),
         sp: 0,
+        globals: make([]object.Object, GlobalSize),
     }
+}
+
+func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+    vm := New(bytecode)
+    vm.globals = s
+
+    return vm
 }
 
 func (vm *VM) Run() error {
@@ -77,6 +89,38 @@ func (vm *VM) Run() error {
             }
         case code.OpMinus:
             err := vm.executeMinusOperator()
+
+            if err != nil {
+                return err
+            }
+        case code.OpJump:
+            pos := int(code.ReadUint16(vm.instructions[ip+1:]))
+            ip = pos - 1
+        case code.OpJumpNotTruthy:
+            pos := int(code.ReadUint16(vm.instructions[ip+1:]))
+            ip += 2
+
+            condition := vm.pop()
+
+            if condition == False || condition == Null {
+                ip = pos - 1
+            }
+        case code.OpNull:
+            err := vm.push(Null)
+
+            if err != nil {
+                return err
+            }
+        case code.OpSetGlobal:
+            globalIndex := code.ReadUint16(vm.instructions[ip+1:])
+            ip += 2
+
+            vm.globals[globalIndex] = vm.pop()
+        case code.OpGetGlobal:
+            globalIndex := code.ReadUint16(vm.instructions[ip+1:])
+            ip += 2
+
+            err := vm.push(vm.globals[globalIndex])
 
             if err != nil {
                 return err
@@ -169,7 +213,7 @@ func (vm *VM) executeBangOperator() error {
     switch operand {
     case True:
         return vm.push(False)
-    case False:
+    case False, Null:
         return vm.push(True)
     default:
         return vm.push(False)
