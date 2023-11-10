@@ -12,17 +12,17 @@ import (
 type ObjectType string
 
 const (
-	INTEGER_OBJ      = "INTEGER"
-	STRING_OBJ       = "STRING"
-	BOOLEAN_OBJ      = "BOOLEAN"
-	NULL_OBJ         = "NULL"
-	RETURN_VALUE_OBJ = "RETURN_VALUE"
-	ERROR_OBJ        = "ERROR"
-	BUILTIN_OBJ      = "BUILTIN"
-	ARRAY_OBJ        = "ARRAY"
-	HASH_OBJ         = "HASH"
-	FUNCTION_OBJ     = "FUNCTION"
-	COMPILED_FUNCTION_OBJ     = "COMPILED_FUNCTION"
+	INTEGER_OBJ           = "INTEGER"
+	STRING_OBJ            = "STRING"
+	BOOLEAN_OBJ           = "BOOLEAN"
+	NULL_OBJ              = "NULL"
+	RETURN_VALUE_OBJ      = "RETURN_VALUE"
+	ERROR_OBJ             = "ERROR"
+	BUILTIN_OBJ           = "BUILTIN"
+	ARRAY_OBJ             = "ARRAY"
+	HASH_OBJ              = "HASH"
+	FUNCTION_OBJ          = "FUNCTION"
+	COMPILED_FUNCTION_OBJ = "COMPILED_FUNCTION"
 )
 
 type Object interface {
@@ -178,13 +178,13 @@ func (f *Function) Inspect() string {
 }
 
 type CompiledFunction struct {
-    Instructions code.Instructions
+	Instructions code.Instructions
 }
 
 func (cf *CompiledFunction) Type() ObjectType {
-    return COMPILED_FUNCTION_OBJ
+	return COMPILED_FUNCTION_OBJ
 }
 
 func (cf *CompiledFunction) Inspect() string {
-    return fmt.Sprintf("CompiledFunction[%p]", cf)
+	return fmt.Sprintf("CompiledFunction[%p]", cf)
 }

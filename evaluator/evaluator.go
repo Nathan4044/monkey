@@ -248,13 +248,13 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
-    if node.Value == "true" {
-        return TRUE
-    }
+	if node.Value == "true" {
+		return TRUE
+	}
 
-    if node.Value == "false" {
-        return FALSE
-    }
+	if node.Value == "false" {
+		return FALSE
+	}
 
 	if val, ok := env.Get(node.Value); ok {
 		return val

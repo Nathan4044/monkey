@@ -3,35 +3,35 @@ package compiler
 type SymbolScope string
 
 const (
-    GlobalScope SymbolScope = "GLOBAL"
+	GlobalScope SymbolScope = "GLOBAL"
 )
 
 type Symbol struct {
-    Name string
-    Scope SymbolScope
-    Index int
+	Name  string
+	Scope SymbolScope
+	Index int
 }
 
 type SymbolTable struct {
-    store map[string]Symbol
-    numDefinitions int
+	store          map[string]Symbol
+	numDefinitions int
 }
 
 func NewSymbolTable() *SymbolTable {
-    s := make(map[string]Symbol)
-    return &SymbolTable{ store: s }
+	s := make(map[string]Symbol)
+	return &SymbolTable{store: s}
 }
 
 func (s *SymbolTable) Define(name string) Symbol {
-    symbol := Symbol{Name: name, Index: s.numDefinitions, Scope: GlobalScope}
-    s.store[name] = symbol
+	symbol := Symbol{Name: name, Index: s.numDefinitions, Scope: GlobalScope}
+	s.store[name] = symbol
 
-    s.numDefinitions++
+	s.numDefinitions++
 
-    return symbol
+	return symbol
 }
 
 func (s *SymbolTable) Resolve(name string) (Symbol, bool) {
-    symbol, ok := s.store[name]
-    return symbol, ok
+	symbol, ok := s.store[name]
+	return symbol, ok
 }
