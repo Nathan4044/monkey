@@ -184,16 +184,15 @@ func (vm *VM) Run() error {
 				return err
 			}
 		case code.OpCall:
-			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
+            numArgs := code.ReadUint8(ins[ip+1:])
 
-			if !ok {
-				return fmt.Errorf("calling non-function")
-			}
+            vm.currentFrame().ip += 1
 
-			frame := NewFrame(fn, vm.sp)
-			vm.pushFrame(frame)
+            err := vm.callFunction(int(numArgs))
 
-			vm.sp = frame.basePointer + fn.NumLocals
+            if err != nil {
+                return err
+            }
 		case code.OpReturnValue:
 			returnValue := vm.pop()
 
@@ -465,9 +464,29 @@ func (vm *VM) popFrame() *Frame {
 	return vm.frames[vm.frameIndex]
 }
 
+func (vm *VM) callFunction(numArgs int) error {
+    fn, ok := vm.stack[vm.sp-1-numArgs].(*object.CompiledFunction)
+
+    if !ok {
+        return fmt.Errorf("calling non-function")
+    }
+
+    if numArgs != fn.NumParameters {
+        return fmt.Errorf("wrong number of arguments: want=%d, got=%d",
+            fn.NumParameters, numArgs)
+    }
+
+    frame := NewFrame(fn, vm.sp-numArgs)
+    vm.pushFrame(frame)
+
+    vm.sp = frame.basePointer + fn.NumLocals
+
+    return nil
+}
+
 func nativeBoolToBooleanObject(b bool) *object.Boolean {
-	if b {
-		return True
-	}
-	return False
+    if b {
+        return True
+    }
+    return False
 }
