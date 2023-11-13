@@ -2,7 +2,7 @@ package object
 
 import (
 	"fmt"
-    "strings"
+	"strings"
 )
 
 var Builtins = []struct {
@@ -39,130 +39,130 @@ var Builtins = []struct {
 						len(args))
 				}
 
-                if args[0].Type() != ARRAY_OBJ {
-                    return newError("argument to `first` must be ARRAY, got %s",
-                        args[0].Type())
-                }
+				if args[0].Type() != ARRAY_OBJ {
+					return newError("argument to `first` must be ARRAY, got %s",
+						args[0].Type())
+				}
 
-                arr := args[0].(*Array)
+				arr := args[0].(*Array)
 
-                if len(arr.Elements) > 0 {
-                    return arr.Elements[0]
-                }
+				if len(arr.Elements) > 0 {
+					return arr.Elements[0]
+				}
 
-                return nil
+				return nil
 			},
 		},
 	},
-    {
-        "rest",
-        &Builtin{
-            Fn: func(args ...Object) Object {
-                if len(args) != 1 {
-                    return newError("wrong number of arguments. got=%d, want=1",
-                    len(args))
-                }
+	{
+		"rest",
+		&Builtin{
+			Fn: func(args ...Object) Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1",
+						len(args))
+				}
 
-                switch arg := args[0].(type) {
-                case *Array:
-                    length := len(arg.Elements)
+				switch arg := args[0].(type) {
+				case *Array:
+					length := len(arg.Elements)
 
-                    if length > 0 {
-                        newElements := make([]Object, length-1, length-1)
-                        copy(newElements, arg.Elements[1:length])
+					if length > 0 {
+						newElements := make([]Object, length-1, length-1)
+						copy(newElements, arg.Elements[1:length])
 
-                        return &Array{Elements: newElements}
-                    }
+						return &Array{Elements: newElements}
+					}
 
-                    return nil
-                case *String:
-                    length := len(arg.Value)
+					return nil
+				case *String:
+					length := len(arg.Value)
 
-                    if length > 0 {
-                        newString := strings.Clone(arg.Value[1:length])
-                        return &String{Value: newString}
-                    }
+					if length > 0 {
+						newString := strings.Clone(arg.Value[1:length])
+						return &String{Value: newString}
+					}
 
-                    return nil
-                default:
-                    return newError("argument to `first` not supported, got %s",
-                    args[0].Type())
-                }
-            },
-        },
-    },
-    {
-        "last",
-        &Builtin{
-            Fn: func(args ...Object) Object {
-                if len(args) != 1 {
-                    return newError("wrong number of arguments. got=%d, want=1",
-                    len(args))
-                }
+					return nil
+				default:
+					return newError("argument to `first` not supported, got %s",
+						args[0].Type())
+				}
+			},
+		},
+	},
+	{
+		"last",
+		&Builtin{
+			Fn: func(args ...Object) Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1",
+						len(args))
+				}
 
-                if args[0].Type() != ARRAY_OBJ {
-                    return newError("argument to `last` must be ARRAY, got %s",
-                    args[0].Type())
-                }
+				if args[0].Type() != ARRAY_OBJ {
+					return newError("argument to `last` must be ARRAY, got %s",
+						args[0].Type())
+				}
 
-                arr := args[0].(*Array)
+				arr := args[0].(*Array)
 
-                if len(arr.Elements) > 0 {
-                    return arr.Elements[len(arr.Elements) - 1]
-                }
+				if len(arr.Elements) > 0 {
+					return arr.Elements[len(arr.Elements)-1]
+				}
 
-                return nil
-            },
-        },
-    },
-    {
-        "push",
-        &Builtin{
-            Fn: func(args ...Object) Object {
-                if len(args) != 2 {
-                    return newError("wrong number of arguments. got=%d, want=2",
-                    len(args))
-                }
+				return nil
+			},
+		},
+	},
+	{
+		"push",
+		&Builtin{
+			Fn: func(args ...Object) Object {
+				if len(args) != 2 {
+					return newError("wrong number of arguments. got=%d, want=2",
+						len(args))
+				}
 
-                if args[0].Type() != ARRAY_OBJ {
-                    return newError("first argument to `push` must be ARRAY, got %s", args[0].Type())
-                }
+				if args[0].Type() != ARRAY_OBJ {
+					return newError("first argument to `push` must be ARRAY, got %s", args[0].Type())
+				}
 
-                arr := args[0].(*Array)
-                length := len(arr.Elements)
+				arr := args[0].(*Array)
+				length := len(arr.Elements)
 
-                newArr := make([]Object, length+1, length+1)
+				newArr := make([]Object, length+1, length+1)
 
-                copy(newArr, arr.Elements)
-                newArr[length] = args[1]
+				copy(newArr, arr.Elements)
+				newArr[length] = args[1]
 
-                return &Array{Elements: newArr}
-            },
-        },
-    },
-    {
-        "puts",
-        &Builtin{
-            Fn: func(args ...Object) Object {
-                for _, arg := range args {
-                    fmt.Println(arg.Inspect())
-                }
+				return &Array{Elements: newArr}
+			},
+		},
+	},
+	{
+		"puts",
+		&Builtin{
+			Fn: func(args ...Object) Object {
+				for _, arg := range args {
+					fmt.Println(arg.Inspect())
+				}
 
-                return nil
-            },
-        },
-    },
+				return nil
+			},
+		},
+	},
 }
 
 func newError(format string, a ...interface{}) *Error {
-    return &Error{Message: fmt.Sprintf(format, a...)}
+	return &Error{Message: fmt.Sprintf(format, a...)}
 }
 
 func GetBuiltinByName(name string) *Builtin {
-    for _, def := range Builtins {
-        if def.Name == name {
-            return def.Builtin
-        }
-    }
-    return nil
+	for _, def := range Builtins {
+		if def.Name == name {
+			return def.Builtin
+		}
+	}
+	return nil
 }
